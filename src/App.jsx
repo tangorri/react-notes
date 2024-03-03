@@ -17,9 +17,13 @@ function App() {
   ]);
 
   function onRemoveBtnHandler(noteToDelete) {
-    // on garde tous les notes qui ne sont pas celle à supprimer
-    const newNotes = notes.filter(note => note.id !== noteToDelete.id);
-    // const newNotes = notes.filter(note => note !== noteToDelete);
+    // recherche l'index dans le tableau (comparaison par références d'objets)
+    const index = notes.indexOf(noteToDelete);
+    // on prend une copie des éléments avec index strictement inférieur
+    // on prend une copie des elements avec index strictement supérieur
+    // on créer un tableau qui concatène la destructuration de ces tableaux
+    const newNotes = [...notes.slice(0, index), ...notes.slice(index + 1)];
+    // on passe ce nouveau tableau dans le states qui désigne les notes
     setNotes(newNotes);
   }
 
