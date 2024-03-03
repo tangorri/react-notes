@@ -6,7 +6,7 @@ import './App.css'
 import Counter from './components/Counter'
 import Filters from './components/Filters'
 import NoteList from './components/NoteList'
-import AddNotForm from './components/AddNoteForm'
+import AddNoteForm from './components/AddNoteForm'
 
 function App() {
 
@@ -23,25 +23,19 @@ function App() {
     setNotes(newNotes);
   }
 
+  function onNoteAddedHandler(newNote) {
+    setNotes([...notes, newNote])
+  }
+
   return (
     <>
       <h1>Application Notes</h1>
       <Counter notes={notes} />
-      <AddNotForm />
+      <AddNoteForm onNoteAdded={onNoteAddedHandler} />
       <Filters />
       <NoteList notes={notes}  onRemoveBtn={onRemoveBtnHandler} />
     </>
   )
-
-  // const onListItemClickHandler = (e) => {
-  //   console.log(e);
-  // }
-
-  // return (
-  //   <Fragment>
-  //     <NoteList notes={notes} onListItemClick={onListItemClickHandler}></NoteList>
-  //   </Fragment>
-  // )
 }
 
 export default App
