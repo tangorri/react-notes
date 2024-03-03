@@ -1,12 +1,9 @@
 import { useState } from "react";
 
-export default function Filters({onFilterChanged}) {
-
-  const [keyword, keywordSetter] = useState('');
+export default function Filters({filters, onFilterChanged}) {
 
   const onKeyWordChanged = e => {
     const keyword = e.target.value;
-    keywordSetter(keyword)
     onFilterChanged(keyword);
   };
 
@@ -14,7 +11,7 @@ export default function Filters({onFilterChanged}) {
     <form>
       <fieldset>
         <legend>Recherche une note</legend>
-      <input name="keyword" type="search" placeholder="rechercher par mot" value={keyword} onChange={onKeyWordChanged} />
+      <input name="keyword" type="search" placeholder="rechercher par mot" value={filters.keyword} onChange={onKeyWordChanged} />
       </fieldset>
     </form>
   );

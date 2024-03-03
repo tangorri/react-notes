@@ -12,28 +12,44 @@ import AddNoteForm from './components/AddNoteForm'
 
 function App() {
 
-  const notesRAW = [
+  const pureNotes = [
     { id: 11, text: "première note" },
     { id: 12, text: "deuxième note" },
     { id: 33, text: "troisième note" }
   ]
 
-  const [notes, setNotes] = useState(notesRAW);
+  const [notesRAW, notesRAWSetter] = useState([...pureNotes]);
+
+  const [notes, setNotes] = useState([...notesRAW]);
+
+
+  const [filters, filtersSetter] = useState(
+    {keyword: ''}
+  );
 
   function onRemoveBtnHandler(noteToDelete) {
-    setNotes(ArrayLib.remove(notes, noteToDelete));
+    const noteRawNewValues = ArrayLib.remove(notesRAW, noteToDelete);
+    notesRAWSetter(noteRawNewValues);
+    updateFiltered(noteRawNewValues);
   }
 
   function onNoteAddedHandler(newNote) {
-    setNotes([...notes, newNote])
+    const noteRawNewValues = [...notesRAW, newNote];
+    notesRAWSetter(noteRawNewValues);
+    updateFiltered(noteRawNewValues)
+  }
+
+  function updateFiltered(notes) {
+    setNotes([...notes]);
   }
 
   function onFilterChangedHandler(keyword) {
-    if (keyword.length > 0) {
-      setNotes(notes.filter(note => note.text.includes(keyword)));
-    } else {
-      setNotes(notesRAW);
-    }
+    console.log('filters: ', keyword)
+    filtersSetter({
+      keyword: keyword
+    });
+    if (keyword.length > 0) setNotes(notesRAW.filter(n => n.text.includes(keyword)));
+    else setNotes(notesRAW);
   }
 
   return (
@@ -41,7 +57,7 @@ function App() {
       <h1>Application Notes</h1>
       <Counter notes={notes} />
       <AddNoteForm onNoteAdded={onNoteAddedHandler} />
-      <Filters onFilterChanged={onFilterChangedHandler} />
+      <Filters filters={filters} onFilterChanged={onFilterChangedHandler} />
       <NoteList notes={notes} onRemoveBtn={onRemoveBtnHandler} />
     </>
   )
