@@ -26,7 +26,7 @@ function App() {
   return (
     <>
       <h1>Application Notes</h1>
-      <Counter />
+      <Counter notes={notes} />
       <AddNotForm />
       <Filters />
       <NoteList notes={notes}  onRemoveBtn={onRemoveBtnHandler} />

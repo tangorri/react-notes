@@ -1,3 +1,3 @@
-export default function Counter() {
-  return <p>42 notes affichées</p>;
+export default function Counter({notes}) {
+  return <p>{notes.length} notes affichées</p>;
 }
