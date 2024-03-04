@@ -41,6 +41,20 @@ function App() {
     });
   }, []);
 
+  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    console.log('adding changed effect, adding: ', adding);
+    if (adding === true) {
+      console.log('we should send new note to api server');
+      fetch('http://localhost:3000/notes/', {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
+    }
+  }, [adding]);
+
+
   const pureNotes = [
     { id: 11, text: "première note" },
     { id: 12, text: "deuxième note" },
@@ -64,7 +78,8 @@ function App() {
   function onNoteAddedHandler(newNote) {
     const noteRawNewValues = [...notesRAW, newNote];
     notesRAWSetter(noteRawNewValues);
-    updateFiltered(noteRawNewValues)
+    updateFiltered(noteRawNewValues);
+    setAdding(true);
   }
 
   function updateFiltered(notes) {
