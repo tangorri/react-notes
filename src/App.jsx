@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -12,6 +12,35 @@ import AddNoteForm from './components/AddNoteForm'
 
 function App() {
 
+  // CECI NE MARCHERA PAS CAR NECESSITE DE RENDRE App() async
+  // CE QUI NE SEMBLE PAS PLAIRE A REACT
+  // const response = await fetch('http://localhost:3000/notes/');
+  // const data = await response.json();
+  // console.log('data: ', data);
+
+  // BOUCLE INFINIE, setter dans le constructeur
+  // fetch('http://localhost:3000/notes/')
+  //   .then(response => response.json())
+  //   .then(data => notesRAWSetter(data));
+
+  // const loadNotes = async () => {
+  //   const response = await fetch('http://localhost:3000/notes/');
+  //   const data = await response.json();
+  //   notesRAWSetter(data);
+  //   console.log('data: ', data);
+  // };
+
+  // loadNotes();
+
+  useEffect(() => {
+    fetch('http://localhost:3000/notes/')
+    .then(response => response.json())
+    .then(data => {
+      notesRAWSetter(data);
+      setNotes(data);
+    });
+  }, []);
+
   const pureNotes = [
     { id: 11, text: "première note" },
     { id: 12, text: "deuxième note" },
@@ -22,9 +51,8 @@ function App() {
 
   const [notes, setNotes] = useState([...notesRAW]);
 
-
   const [filters, filtersSetter] = useState(
-    {keyword: ''}
+    { keyword: '' }
   );
 
   function onRemoveBtnHandler(noteToDelete) {
