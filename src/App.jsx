@@ -76,7 +76,7 @@ function App() {
     filtersSetter({
       keyword: keyword
     });
-    if (keyword.length > 0) setNotes(notesRAW.filter(n => n.text.includes(keyword)));
+    if (keyword.length > 0) setNotes(notesRAW.filter(n => n.text.toLowerCase().includes(keyword.toLowerCase())));
     else setNotes(notesRAW);
   }
 
