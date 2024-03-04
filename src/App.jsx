@@ -9,77 +9,46 @@ import Counter from './components/Counter'
 import Filters from './components/Filters'
 import NoteList from './components/NoteList'
 import AddNoteForm from './components/AddNoteForm'
+import { NoteManager } from './api/note-manager'
 
 function App() {
 
-  // CECI NE MARCHERA PAS CAR NECESSITE DE RENDRE App() async
-  // CE QUI NE SEMBLE PAS PLAIRE A REACT
-  // const response = await fetch('http://localhost:3000/notes/');
-  // const data = await response.json();
-  // console.log('data: ', data);
-
-  // BOUCLE INFINIE, setter dans le constructeur
-  // fetch('http://localhost:3000/notes/')
-  //   .then(response => response.json())
-  //   .then(data => notesRAWSetter(data));
-
-  // const loadNotes = async () => {
-  //   const response = await fetch('http://localhost:3000/notes/');
-  //   const data = await response.json();
-  //   notesRAWSetter(data);
-  //   console.log('data: ', data);
-  // };
-
-  // loadNotes();
-
+  // Ici comme on veut charger les données dès juste
+  // après la création du composant. Comme on fait un appel à un setState
+  // par d'autre chose que de passer par un hook userEffect.
+  // Si on faisait un setState dans App() on aurait => setState() => App() => setState (infinite loop!)
+  // doc: https://fr.react.dev/reference/react/useEffect
   useEffect(() => {
-    fetch('http://localhost:3000/notes/')
-    .then(response => response.json())
-    .then(data => {
-      notesRAWSetter(data);
-      setNotes(data);
+    NoteManager.list().then(loadedNotes => {
+      notesRAWSetter(loadedNotes);
+      setNotes(loadedNotes);
     });
   }, []);
+  // le tableau vide fait que nous n'attendons pas qu'un setState précis soit
+  // appelé pour déclenché cet effet. Il se déclenchera donc dès que le composant
+  // aura été initialisé.
 
-  const [adding, setAdding] = useState(false);
-
-  useEffect(() => {
-    console.log('adding changed effect, adding: ', adding);
-    if (adding === true) {
-      console.log('we should send new note to api server');
-      fetch('http://localhost:3000/notes/', {
-        method: 'POST',
-        body: JSON.stringify({})
-      });
-    }
-  }, [adding]);
-
-
-  const pureNotes = [
-    { id: 11, text: "première note" },
-    { id: 12, text: "deuxième note" },
-    { id: 33, text: "troisième note" }
-  ]
-
-  const [notesRAW, notesRAWSetter] = useState([...pureNotes]);
-
+  const [notesRAW, notesRAWSetter] = useState([]);
   const [notes, setNotes] = useState([...notesRAW]);
-
-  const [filters, filtersSetter] = useState(
-    { keyword: '' }
-  );
+  const [filters, filtersSetter] = useState({ keyword: '' });
 
   function onRemoveBtnHandler(noteToDelete) {
     const noteRawNewValues = ArrayLib.remove(notesRAW, noteToDelete);
     notesRAWSetter(noteRawNewValues);
     updateFiltered(noteRawNewValues);
+    if (noteToDelete.id) {
+      NoteManager
+        .remove(noteToDelete.id)
+        .then(response => console.log('note supprimé côté serveur'))
+        ;
+    }
   }
 
   function onNoteAddedHandler(newNote) {
     const noteRawNewValues = [...notesRAW, newNote];
     notesRAWSetter(noteRawNewValues);
     updateFiltered(noteRawNewValues);
-    setAdding(true);
+    NoteManager.create(newNote);
   }
 
   function updateFiltered(notes) {
