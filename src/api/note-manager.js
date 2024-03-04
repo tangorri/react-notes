@@ -7,8 +7,15 @@ const HEADERS_API = {
 
 export class NoteManager {
 
+  static token = null;
+
   static async list() {
-    const response = await fetch(BASE_API_URL);
+    const response = await fetch(BASE_API_URL, {
+      method: "GET",
+      headers: {
+        "Authorization": NoteManager.token
+      }
+    });
     const data = await response.json();
     return data.map(obj => new Note(obj.id, obj.text));
   }
