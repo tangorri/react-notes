@@ -1,26 +1,31 @@
-import { Fragment, useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 import ArrayLib from './lib/array-lib'
 
+// Gestionnaire d'entités
+import { NoteManager } from './api/note-manager'
+
+// Composants
 import Counter from './components/Counter'
 import Filters from './components/Filters'
 import NoteList from './components/NoteList'
 import AddNoteForm from './components/AddNoteForm'
-import { NoteManager } from './api/note-manager'
 
 function App() {
 
-  // Ici comme on veut charger les données dès juste
-  // après la création du composant. Comme on fait un appel à un setState
-  // par d'autre chose que de passer par un hook userEffect.
+  // Déclaration des états du composant.
+  const [notesRAW, setNotesRAW] = useState([]);
+  const [notes, setNotes] = useState([...notesRAW]);
+  const [filters, filtersSetter] = useState({ keyword: '' }); // ajouter ici d'autre propriétés pour filter d'autre façons.
+
+  // Charger les données dès juste après la création du composant.
+  // Comme on fait un appel à un setState pas d'autre chose que de passer par un hook userEffect.
   // Si on faisait un setState dans App() on aurait => setState() => App() => setState (infinite loop!)
   // doc: https://fr.react.dev/reference/react/useEffect
   useEffect(() => {
     NoteManager.list().then(loadedNotes => {
-      notesRAWSetter(loadedNotes);
+      setNotesRAW(loadedNotes);
       setNotes(loadedNotes);
     });
   }, []);
@@ -28,14 +33,13 @@ function App() {
   // appelé pour déclenché cet effet. Il se déclenchera donc dès que le composant
   // aura été initialisé.
 
-  const [notesRAW, notesRAWSetter] = useState([]);
-  const [notes, setNotes] = useState([...notesRAW]);
-  const [filters, filtersSetter] = useState({ keyword: '' });
-
   function onRemoveBtnHandler(noteToDelete) {
+    // mise à jour de l'état
     const noteRawNewValues = ArrayLib.remove(notesRAW, noteToDelete);
-    notesRAWSetter(noteRawNewValues);
-    updateFiltered(noteRawNewValues);
+    setNotesRAW(noteRawNewValues);
+    setNotes(noteRawNewValues);
+
+    // Appel serveur
     if (noteToDelete.id) {
       NoteManager
         .remove(noteToDelete.id)
@@ -45,30 +49,29 @@ function App() {
   }
 
   function onNoteAddedHandler(newNote) {
+    // mise à jour des états
     const noteRawNewValues = [...notesRAW, newNote];
-    notesRAWSetter(noteRawNewValues);
-    updateFiltered(noteRawNewValues);
+    setNotesRAW(noteRawNewValues);
+    setNotes(noteRawNewValues);
+
+    // Appel serveur
     NoteManager.create(newNote)
       // @workaround Rechargement des notes pour obtenir l'id de la nouvelle note
       .then(() => NoteManager.list())
       .then(data => {
-        notesRAWSetter(data);
+        setNotesRAW(data);
         setNotes(data);
       })
       ;
   }
 
-  function updateFiltered(notes) {
-    setNotes([...notes]);
-  }
-
   function onFilterChangedHandler(keyword) {
-    console.log('filters: ', keyword)
-    filtersSetter({
-      keyword: keyword
-    });
-    if (keyword.length > 0) setNotes(notesRAW.filter(n => n.text.toLowerCase().includes(keyword.toLowerCase())));
-    else setNotes(notesRAW);
+    filtersSetter({ keyword: keyword });
+    if (keyword.length > 0) {
+      setNotes(notesRAW.filter(n => n.text.toLowerCase().includes(keyword.toLowerCase())));
+    } else {
+      setNotes(notesRAW);
+    }
   }
 
   return (
@@ -82,4 +85,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
