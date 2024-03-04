@@ -48,7 +48,14 @@ function App() {
     const noteRawNewValues = [...notesRAW, newNote];
     notesRAWSetter(noteRawNewValues);
     updateFiltered(noteRawNewValues);
-    NoteManager.create(newNote);
+    NoteManager.create(newNote)
+      // @workaround Rechargement des notes pour obtenir l'id de la nouvelle note
+      .then(() => NoteManager.list())
+      .then(data => {
+        notesRAWSetter(data);
+        setNotes(data);
+      })
+      ;
   }
 
   function updateFiltered(notes) {
