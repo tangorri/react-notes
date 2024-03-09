@@ -27,16 +27,15 @@ function App() {
   // Si on faisait un setState dans App() on aurait => setState() => App() => setState (infinite loop!)
   // doc: https://fr.react.dev/reference/react/useEffect
   useEffect(() => {
-    console.log('userEffet authenticated');
+    console.log('userEffet authenticated? ', authenticated);
     if (!authenticated) return;
     NoteManager.list().then(loadedNotes => {
       setNotesRAW(loadedNotes);
       setNotes(loadedNotes);
     });
   }, [authenticated]);
-  // le tableau vide fait que nous n'attendons pas qu'un setState précis soit
-  // appelé pour déclenché cet effet. Il se déclenchera donc dès que le composant
-  // aura été initialisé.
+  // en deuxième arguments, le/le status à surveiller. S'ils changent de valeurs
+  // alors la fonction sera
 
   function onRemoveBtnHandler(noteToDelete) {
     // mise à jour de l'état
@@ -97,7 +96,9 @@ function App() {
         jwt = data.token;
         NoteManager.token = jwt;
         setAuthenticated(true);
-      });
+      })
+      // catch permet de gérer les erreurs d'une Promise
+      .catch(error => window.alert('authentification failed: '))
       ;
   }
 
@@ -129,7 +130,6 @@ function App() {
             <label htmlFor="password">Mot de passe</label>
             <input type="password" name="password" />
             <button type="submit">Se connecter</button>
-
           </fieldset>
         </form>
       </>
